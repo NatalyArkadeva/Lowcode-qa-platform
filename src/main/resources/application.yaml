@@ -1,0 +1,63 @@
+server:
+  port: '8081'
+
+spring:
+  application:
+    name: lowcode-qa-platform
+
+  # 1. Настройки подключения к СУБД PostgreSQL
+  datasource:
+    url: jdbc:postgresql://localhost:5432/lowcode_qa_db?currentSchema=public
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      pool-name: QaPlatformHikariPool
+      maximum-pool-size: 20
+      minimum-idle: 5
+      idle-timeout: 300000
+      connection-timeout: 20000
+
+  # 2. Настройки автоматических миграций базы данных (Flyway)
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+    locations: classpath:db/migration
+
+# 3. Конфигурация встроенного движка и веб-интерфейса Camunda BPM
+camunda:
+  bpm:
+    history-level: activity
+    database:
+      schema-update: true
+      type: postgres
+    webapp:
+      index-redirect-enabled: true
+      header-brand: "Low-Code QA Platform"
+    job-execution:
+      enabled: true
+
+# 4. Настройки логирования работы БД и сетевых запросов
+logging:
+  level:
+    root: INFO
+    org.springframework.jdbc.core.JdbcTemplate: DEBUG
+    org.springframework.web.client.RestTemplate: DEBUG
+    org.camunda.bpm.engine: WARN
+
+# 5. Пользовательские параметры платформы (лимит SLA)
+qa-platform:
+  sla:
+    default-timeout-ms: 500
+qa:
+  http:
+    timeout-ms: 10000
+
+springdoc:
+  packages-to-scan: ru.nataly.lowcode_qa_platform.web   # только наши контроллеры
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+
